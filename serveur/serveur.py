@@ -104,11 +104,11 @@ def add_poster(my_scene, mymusee,top_objects, room_name, x_center, z_center, a=5
     for pos in positions:
         painting_name = "painting_" + str(x_center) + "_" + str(z_center) + "_" + str(round(pos[0])) + "_" + str(round(pos[2]))
 
-        # if top_objects is None or len(top_objects) == 0:
-        key, tableau = mymusee.get_rd_tableau()
-        # else:
-        #     key = top_objects.pop(0).nom
-        #     tableau = mymusee.tableaux[key]
+        if top_objects is None or len(top_objects) == 0:
+          key, tableau = mymusee.get_rd_tableau()
+        else:
+          key = top_objects.pop(0).nom
+          tableau = mymusee.tableaux[key]
 
         orientation = 0
         if abs(pos[0]) > b:
