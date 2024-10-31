@@ -4,15 +4,50 @@
 # Schéma d un serveur
 #
 # ===================================================================
-
+import random
 import musee
 import scene
 import math
 from  flask import Flask, jsonify, request
+import graphe as g
 
 from flask_cors import CORS
 app = Flask(import_name=__name__)
 CORS(app)
+
+def RetourneTopTableauRelieAuTag(mymusee):
+    # Initialize the museum
+
+    # Access the graph
+    graph = mymusee.graphe
+
+    # Simulate entering a new room and randomly selecting a keyword (tag)
+    all_tags = list(set(tag for noeud in graph.noeuds.values() if isinstance(noeud, g.Noeud) and not isinstance(noeud, g.Objet) for tag in [noeud.nom]))
+    selected_tag_name = random.choice(all_tags)
+    print(f"Selected tag: {selected_tag_name}")
+
+    # Increase the interest of the selected tag to simulate user interest
+    selected_tag_node = graph.noeuds[selected_tag_name]
+    selected_tag_node.interet += 5.0  # Increase the interest significantly
+
+    # Optionally, you can normalize interest values if needed
+    # graph.normalisationInteret()
+
+    # Calculate the top N objects based on interest levels
+    N = 8
+    top_objects = graph.calculerObjetsDInteret(N)
+
+    # Display the results
+    print(f"\nTop {N} objects based on interest levels:")
+    for obj in top_objects:
+        tableau = mymusee.tableaux[obj.nom]
+        print(f"- ID: {obj.nom}, Title: {tableau.nom}, Interest Level: {obj.interet}")
+        print(f"  Tags: {', '.join(obj.tags)}")
+        print()
+    
+    return top_objects
+
+
 
 
 
@@ -20,7 +55,9 @@ CORS(app)
 def init():
     print("INIT")
     laScene = scene.Scene()
-    
+    # Get a random tableau from musee
+    mymusee = musee.Musee("./assets/expo/", "./serveur/inventaire.json")
+    top_objects =RetourneTopTableauRelieAuTag(mymusee)
     dx = 10
     dz = 10
 
@@ -48,22 +85,21 @@ def init():
                 .add(scene.box("toit", 50, 0.1, 50, "blanc")) \
                 .add(scene.position(15, 3, 15))  # Center position for the roof
             if i<4 and j<4:
-             add_poster(laScene, nomSalle, x, z)  # Use the updated decorate function
+             add_poster(laScene,mymusee, nomSalle, x, z)  # Use the updated decorate function
 
     return jsonify(laScene.jsonify())
 
 
 
-def add_poster(my_scene, room_name, x_center, z_center, a=5, b=3, wall_thickness=0.2):
-    a -= wall_thickness + 0.065
+def add_poster(my_scene, mymusee, room_name, x_center, z_center, a=5, b=3, wall_thickness=0.07):
+    a -= wall_thickness 
     h = 2
     positions = [(a, h, b), (b, h, a), (b, h, -a), (a, h, -b), (-a, h, -b), (-b, h, -a), (-b, h, a), (-a, h, b)]
 
     for pos in positions:
         painting_name = "painting_" + str(x_center) + "_" + str(z_center) + "_" + str(round(pos[0])) + "_" + str(round(pos[2]))
 
-        # Get a random tableau from musee
-        mymusee = musee.Musee("./assets/expo/", "./serveur/inventaire.json")
+
         key, tableau = mymusee.get_rd_tableau()
 
         orientation = 0
@@ -91,6 +127,11 @@ def tictac():
 def onSalle():
   i = request.args.get("I",default=0,type=int)
   j = request.args.get("J",default=0,type=int)
+
+
+  mymusee = musee.Musee("./assets/expo/", "./serveur/inventaire.json")
+  top_objects =RetourneTopTableauRelieAuTag(mymusee)
+  ChangeTheTablesOfDesiredRoom(top_objects,i,j)
   print("CHANGEMENTDE SALLE : i=",i," - j=",j)
   
   resultat = []

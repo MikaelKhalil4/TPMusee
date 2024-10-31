@@ -69,6 +69,32 @@ class Graphe :
     self.root    = None
     self.niveaux = []
 
+
+  def calculerObjetsDInteret(self, n_elements):
+    """
+    Calculates and returns a list of the top N objects with the highest interest levels.
+    The interest level of an object is the sum of the interest levels of its associated tags.
+    """
+    objet_interets = {}
+
+    # Iterate over all objects in the graph
+    for noeud in self.noeuds.values():
+        if isinstance(noeud, Objet):
+            # Get the interest levels of associated tags
+            interet_objet = sum([self.noeuds[tag].interet for tag in noeud.tags if tag in self.noeuds])
+            objet_interets[noeud.nom] = interet_objet
+            noeud.interet = interet_objet  # Update the object's interest attribute
+
+    # Sort the objects by their interest levels in descending order
+    objets_triees = sorted(objet_interets.items(), key=lambda item: item[1], reverse=True)
+
+    # Return the top N objects
+    top_objets = [self.noeuds[nom] for nom, interet in objets_triees[:n_elements]]
+
+    return top_objets
+
+
+
   def calculerObjetsLesPlusInteressants(self,tableaux,n_elements):
     resultat = []
     dico_interest = {}
@@ -93,7 +119,7 @@ class Graphe :
     return resultat 
 
 
-  def calculerInteretObjet(self ):
+  def calculerInteretObjet(self):
     pass
 
   def obtenirNoeudConnaissantNom(self,nom):
@@ -127,6 +153,7 @@ class Graphe :
       return noeud
     else:
       return self.noeuds[nom]
+    
   def ajouterArc(self, noeud1, noeud2, w):
     self.arcs[(noeud1.nom, noeud2.nom)] = w 	  
     noeud1.ajouterParent(noeud2)
@@ -135,7 +162,6 @@ class Graphe :
   def calculNiveau(self):
     n = self.root.calculNiveau() + 1
     
-
     self.niveaux = [[] for i in range(n+1)]
     for noeud in self.noeuds.values() : 
       #print(">>>> ", noeud.nom, " > ", noeud.niveau)
@@ -144,7 +170,8 @@ class Graphe :
   def interetObjets(self):
     pass
 
-   # Question 3.
+
+  # Question 3.
   def asynchrone(self,o):
 
     if not isinstance(o, Noeud):
@@ -154,7 +181,7 @@ class Graphe :
     
     allTags = self.consulterTags()
 
-#    print(tagsTab)
+    print(tagsTab)
 
     # Variables
     tau = 0.5
@@ -166,7 +193,7 @@ class Graphe :
 
 
     for tag in tagsTab :
-    #  print("tag :" + tag + " interet : " + str(self.obtenirNoeudConnaissantNom(tag).interet))
+      print("tag :" + tag + " interet : " + str(self.obtenirNoeudConnaissantNom(tag).interet))
       Vo += self.obtenirNoeudConnaissantNom(tag).interet
 
     if Vo == 0 :
@@ -186,8 +213,8 @@ class Graphe :
         noeud_t = t
         noeud_t.modifierInteret(noeud_t.interet + (-tau *  noeud_t.interet))
 
-    #for t in allTags :
-     # print(t.nom + " : " + str(t.interet))
+    for t in allTags :
+     print(t.nom + " : " + str(t.interet))
 
 
   def synchrone(self):

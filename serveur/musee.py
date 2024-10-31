@@ -57,7 +57,8 @@ class Musee:
             for concept in l:
                 noeudConcept = self.graphe.ajouterNoeud(concept, None)
                 self.graphe.ajouterArc(noeudObjet, noeudConcept, 1.0)
-
+            
+        
         # Pour test
         # for noeud in self.graphe.noeuds:
         #     print("Nom : ", self.graphe.noeuds[noeud].nom)
@@ -77,3 +78,5 @@ class Musee:
         key = random.choice(list(self.tableaux.keys()))
         tableau = self.tableaux[key]
         return key, tableau
+    
+
