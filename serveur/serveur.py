@@ -100,26 +100,28 @@ def add_poster(my_scene, mymusee,top_objects, room_name, x_center, z_center, a=5
     a -= wall_thickness 
     h = 2
     positions = [(a, h, b), (b, h, a), (b, h, -a), (a, h, -b), (-a, h, -b), (-b, h, -a), (-b, h, a), (-a, h, b)]
-
+    
     for pos in positions:
         painting_name = "painting_" + str(x_center) + "_" + str(z_center) + "_" + str(round(pos[0])) + "_" + str(round(pos[2]))
+    
+        if painting_name not in laScene.scene:
 
-        if top_objects is None or len(top_objects) == 0:
-          key, tableau = mymusee.get_rd_tableau()
-        else:
-          key = top_objects.pop(0).nom
-          tableau = mymusee.tableaux[key]
+            if top_objects is None or len(top_objects) == 0:
+                key, tableau = mymusee.get_rd_tableau()
+            else:
+                key = top_objects.pop(0).nom
+                tableau = mymusee.tableaux[key]
 
-        orientation = 0
-        if abs(pos[0]) > b:
-            orientation = math.pi / 2 * (1 if pos[0] > 0 else -1)
-        elif abs(pos[2]) > b:
-            orientation = math.pi * (0 if pos[2] > 0 else 1)
+            orientation = 0
+            if abs(pos[0]) > b:
+                orientation = math.pi / 2 * (1 if pos[0] > 0 else -1)
+            elif abs(pos[2]) > b:
+                orientation = math.pi * (0 if pos[2] > 0 else 1)
 
-        # Add the random tableau to the scene
-        painting = my_scene.actor(painting_name, "actor").add(scene.poster(painting_name, tableau.largeur / 100, tableau.hauteur / 100, tableau.url))
-        painting.add(scene.position(pos[0], pos[1], pos[2])).add(scene.rotation(0, orientation, 0))
-        painting.add(scene.anchoredTo(room_name))
+            # Add the random tableau to the scene
+            painting = my_scene.actor(painting_name, "actor").add(scene.poster(painting_name, tableau.largeur / 100, tableau.hauteur / 100, tableau.url))
+            painting.add(scene.position(pos[0], pos[1], pos[2])).add(scene.rotation(0, orientation, 0))
+            painting.add(scene.anchoredTo(room_name))
 
 
 
@@ -150,8 +152,7 @@ def onSalle():
   suffixe = str(i) + "-" + str(j)           
   nomSalle = "salle-" + suffixe
   add_poster(laScene,mymusee,RetourneTopTableauRelieAuTag(), nomSalle, i * dx, j * dz)
-  resultat = []
-  return jsonify(resultat)
+  return jsonify(laScene.jsonify())
 
 
 
