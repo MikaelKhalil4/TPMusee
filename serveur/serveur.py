@@ -15,10 +15,15 @@ from flask_cors import CORS
 app = Flask(import_name=__name__)
 CORS(app)
 
-def RetourneTopTableauRelieAuTag(mymusee):
-    # Initialize the museum
+# Define global variables
+laScene = None
+mymusee = None
+dx = 10
+dz = 10
 
-    # Access the graph
+def RetourneTopTableauRelieAuTag():
+    
+    global mymusee
     graph = mymusee.graphe
 
     # Simulate entering a new room and randomly selecting a keyword (tag)
@@ -54,12 +59,12 @@ def RetourneTopTableauRelieAuTag(mymusee):
 @app.route('/init')
 def init():
     print("INIT")
-    laScene = scene.Scene()
-    # Get a random tableau from musee
+
+    global laScene ,mymusee,dx,dz
+
+    laScene= scene.Scene()
     mymusee = musee.Musee("./assets/expo/", "./serveur/inventaire.json")
-    top_objects =RetourneTopTableauRelieAuTag(mymusee)
-    dx = 10
-    dz = 10
+
 
     for i in range(0, 5):
         for j in range(0, 5):
@@ -84,14 +89,14 @@ def init():
             laScene.actor("toit", "actor") \
                 .add(scene.box("toit", 50, 0.1, 50, "blanc")) \
                 .add(scene.position(15, 3, 15))  # Center position for the roof
-            if i<4 and j<4:
-             add_poster(laScene,mymusee, nomSalle, x, z)  # Use the updated decorate function
+            # if i<4 and j<4:
+            #  add_poster(laScene,mymusee,None, nomSalle, x, z)  # Use the updated decorate function
 
     return jsonify(laScene.jsonify())
 
 
 
-def add_poster(my_scene, mymusee, room_name, x_center, z_center, a=5, b=3, wall_thickness=0.07):
+def add_poster(my_scene, mymusee,top_objects, room_name, x_center, z_center, a=5, b=3, wall_thickness=0.07):
     a -= wall_thickness 
     h = 2
     positions = [(a, h, b), (b, h, a), (b, h, -a), (a, h, -b), (-a, h, -b), (-b, h, -a), (-b, h, a), (-a, h, b)]
@@ -99,8 +104,11 @@ def add_poster(my_scene, mymusee, room_name, x_center, z_center, a=5, b=3, wall_
     for pos in positions:
         painting_name = "painting_" + str(x_center) + "_" + str(z_center) + "_" + str(round(pos[0])) + "_" + str(round(pos[2]))
 
-
+        # if top_objects is None or len(top_objects) == 0:
         key, tableau = mymusee.get_rd_tableau()
+        # else:
+        #     key = top_objects.pop(0).nom
+        #     tableau = mymusee.tableaux[key]
 
         orientation = 0
         if abs(pos[0]) > b:
@@ -123,19 +131,36 @@ def tictac():
     return jsonify(resultat)
 
 
+
+
+
+
+
+
+
 @app.route('/salle/')
 def onSalle():
   i = request.args.get("I",default=0,type=int)
   j = request.args.get("J",default=0,type=int)
-
-
-  mymusee = musee.Musee("./assets/expo/", "./serveur/inventaire.json")
-  top_objects =RetourneTopTableauRelieAuTag(mymusee)
-  ChangeTheTablesOfDesiredRoom(top_objects,i,j)
   print("CHANGEMENTDE SALLE : i=",i," - j=",j)
-  
+
+
+  global laScene ,mymusee,dx,dz
+
+  suffixe = str(i) + "-" + str(j)           
+  nomSalle = "salle-" + suffixe
+  add_poster(laScene,mymusee,RetourneTopTableauRelieAuTag(), nomSalle, i * dx, j * dz)
   resultat = []
   return jsonify(resultat)
+
+
+
+
+
+
+
+
+
 
 @app.route('/click/')
 def onClick():
