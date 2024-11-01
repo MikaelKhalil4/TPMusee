@@ -58,6 +58,7 @@ class Musee:
                 noeudConcept = self.graphe.ajouterNoeud(concept, None)
                 self.graphe.ajouterArc(noeudObjet, noeudConcept, 1.0)
             
+        self.graphe.calculNiveau() #added this
         
         # Pour test
         # for noeud in self.graphe.noeuds:
