@@ -137,10 +137,14 @@ def add_poster(room_name, x_center, z_center, a=5, b=3, wall_thickness=0.07):
                 painting.add(scene.anchoredTo(room_name))
 
 
-
 @app.route('/tictac')
 def tictac():
-    t = request.args.get("Time",default=0,type=float)
+    t = request.args.get("Time", default=0, type=float)
+    
+    global mymusee
+    if mymusee is not None:
+        # Call synchrone method every time to smoothly dampen interests
+        mymusee.graphe.synchrone()
     
     resultat = []
     return jsonify(resultat)

@@ -218,7 +218,7 @@ class Graphe :
 
 
   def synchrone(self):
-    omega = 0.5
+    omega = 0.2
 
     # Calcul de Iavg
     Iavg = 0
@@ -246,9 +246,9 @@ class Graphe :
       if t.interet < Iavg :
         t.modifierInteret(t.interet + quantiteRecup/nbInf)
 
-   # for t in allTags :
-    #  print(t.nom)
-     # print(t.interet)
+    for t in allTags :
+      print(t.nom)
+      print(t.interet)
       
   def calculInteretMax(self):
     l = [noeud.interet for noeud in self.noeuds.values()]

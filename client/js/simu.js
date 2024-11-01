@@ -47,12 +47,12 @@ class Simu {
     		window.addEventListener("resize", ()=>{that.engine.resize();})
 
         
-/*
+
             setInterval(()=>{
                                 loadJSON("http://127.0.0.1:5000/tictac?Time="+this.clock, (res) => {});
                             }, 
                         1000);
-    		*/
+    		
 
 
 
