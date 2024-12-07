@@ -70,29 +70,36 @@ class Graphe :
     self.niveaux = []
 
 
+  
+
   def calculerObjetsDInteret(self, n_elements):
-    """
-    Calculates and returns a list of the top N objects with the highest interest levels.
-    The interest level of an object is the sum of the interest levels of its associated tags.
-    """
-    objet_interets = {}
+        """Modified to include taxonomy propagation"""
+        print("=== Calculating Objects of Interest ===")
+        # First propagate interest through taxonomy
+        self.calculUpInteret()
+        self.calculDownInteret()
+        
+        objet_interets = {}
+        # Calculate final interest for objects
+        for noeud in self.noeuds.values():
+            if isinstance(noeud, Objet):
+                # Get the interest levels of associated tags
+                tag_interest = sum([self.noeuds[tag].interet for tag in noeud.tags if tag in self.noeuds])
+                # Combine tag interest with object's propagated interest
+                final_interest = (tag_interest + noeud.interet) / 2
+                objet_interets[noeud.nom] = final_interest
+                noeud.interet = final_interest
+                print(f"Object {noeud.nom}: Final interest = {final_interest}")
 
-    # Iterate over all objects in the graph
-    for noeud in self.noeuds.values():
-        if isinstance(noeud, Objet):
-            # Get the interest levels of associated tags
-            interet_objet = sum([self.noeuds[tag].interet for tag in noeud.tags if tag in self.noeuds])
-            objet_interets[noeud.nom] = interet_objet
-            noeud.interet = interet_objet  # Update the object's interest attribute
-
-    # Sort the objects by their interest levels in descending order
-    objets_triees = sorted(objet_interets.items(), key=lambda item: item[1], reverse=True)
-
-    # Return the top N objects
-    top_objets = [self.noeuds[nom] for nom, interet in objets_triees[:n_elements]]
-
-    return top_objets
-
+        # Sort objects by interest and return top N
+        objets_triees = sorted(objet_interets.items(), key=lambda item: item[1], reverse=True)
+        top_objets = [self.noeuds[nom] for nom, interet in objets_triees[:n_elements]]
+        
+        print("=== Top Objects Selected ===")
+        for obj in top_objets:
+            print(f"Selected: {obj.nom} with interest {obj.interet}")
+            
+        return top_objets
 
 
   def calculerObjetsLesPlusInteressants(self,tableaux,n_elements):
@@ -218,7 +225,7 @@ class Graphe :
 
 
   def synchrone(self):
-    omega = 0.2
+    omega = 2
 
     # Calcul de Iavg
     Iavg = 0
@@ -261,7 +268,31 @@ class Graphe :
       noeud.interet = noeud.interet / doiMax
       
   def calculUpInteret(self):
-    pass
-        
+    """Bottom-up propagation of interest"""
+    print("\n=== Starting Bottom-up Propagation ===")
+    # Start from level 0 (objects) and propagate up
+    for niveau in range(len(self.niveaux)-1):
+        print(f"Processing level {niveau}/{len(self.niveaux)-1}")
+        for noeud in self.niveaux[niveau]:
+            print(f"Node: {noeud.nom}, Interest: {noeud.interet}")
+            # Calculate interest for parent nodes
+            for parent in noeud.parents:
+                old_interest = parent.interet
+                children_interest = [child.interet for child in parent.enfants]
+                parent.interet = sum(children_interest) / len(children_interest)
+                print(f"  Parent {parent.nom}: {old_interest} -> {parent.interet}")
+
   def calculDownInteret(self):
-    pass
+    """Top-down propagation of interest"""
+    print("\n=== Starting Top-down Propagation ===")
+    # Start from highest level and propagate down
+    for niveau in reversed(range(1, len(self.niveaux))):
+        print(f"Processing level {niveau}/{len(self.niveaux)}")
+        for noeud in self.niveaux[niveau]:
+            print(f"Node: {noeud.nom}, Interest: {noeud.interet}")
+            # Calculate interest for child nodes
+            for child in noeud.enfants:
+                old_interest = child.interet
+                weight = 0.5  # Weight factor for parent influence
+                child.interet = (1-weight)*child.interet + weight*noeud.interet
+                print(f"  Child {child.nom}: {old_interest} -> {child.interet}")

@@ -48,10 +48,10 @@ class Simu {
 
         
 
-            setInterval(()=>{
-                                loadJSON("http://127.0.0.1:5000/tictac?Time="+this.clock, (res) => {});
-                            }, 
-                        1000);
+            // setInterval(()=>{
+            //                     loadJSON("http://127.0.0.1:5000/tictac?Time="+this.clock, (res) => {});
+            //                 }, 
+            //             1000);
     		
 
 

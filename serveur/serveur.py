@@ -25,34 +25,26 @@ dx = 10
 dz = 10
 
 def RetourneTopTableauRelieAuTag():
-    
     global mymusee
     graph = mymusee.graphe
 
+    print("=== DEBUG: Starting RetourneTopTableauRelieAuTag ===")
+    
     # Simulate entering a new room and randomly selecting a keyword (tag)
     all_tags = list(set(tag for noeud in graph.noeuds.values() if isinstance(noeud, g.Noeud) and not isinstance(noeud, g.Objet) for tag in [noeud.nom]))
     selected_tag_name = random.choice(all_tags)
     print(f"Selected tag: {selected_tag_name}")
-
-    # Increase the interest of the selected tag to simulate user interest
-    selected_tag_node = graph.noeuds[selected_tag_name]
-    # selected_tag_node.interet += 5.0  # Increase the interest significantly
-
-    # Optionally, you can normalize interest values if needed
-    # graph.normalisationInteret()
-
-    # Calculate the top N objects based on interest levels
-    N = 10
-    top_objects = graph.calculerObjetsDInteret(N)
-    # selected_tag_node.interet = 1.0 #reset the value
     
-    # Display the results
-    print(f"\nTop {N} objects based on interest levels:")
-    for obj in top_objects:
-        tableau = mymusee.tableaux[obj.nom]
-        print(f"- ID: {obj.nom}, Title: {tableau.nom}, Interest Level: {obj.interet}")
-        print(f"  Tags: {', '.join(obj.tags)}")
-        print()
+    # Increase the interest of the selected tag
+    selected_tag_node = graph.noeuds[selected_tag_name]
+    old_interest = selected_tag_node.interet
+    selected_tag_node.interet += 1.0  # Increase interest
+    print(f"Increased {selected_tag_name} interest: {old_interest} -> {selected_tag_node.interet}")
+
+    # Calculate objects
+    print("Calling calculerObjetsDInteret...")
+    N = 10
+    top_objects = graph.calculerObjetsDInteret(N)  # This should trigger our debug output
     
     return top_objects
 
@@ -143,9 +135,9 @@ def tictac():
     
     global mymusee
     if mymusee is not None:
-        # Call synchrone method every time to smoothly dampen interests
+        # First do interest dampening
         mymusee.graphe.synchrone()
-    
+        
     resultat = []
     return jsonify(resultat)
 

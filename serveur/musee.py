@@ -58,8 +58,11 @@ class Musee:
                 noeudConcept = self.graphe.ajouterNoeud(concept, None)
                 self.graphe.ajouterArc(noeudObjet, noeudConcept, 1.0)
             
-        self.graphe.calculNiveau() #added this
-        
+        self.graphe.calculNiveau()
+    
+        # Initialize interest values
+        for noeud in self.graphe.noeuds.values():
+            noeud.interet = 1.0  # Start with neutral interest
         # Pour test
         # for noeud in self.graphe.noeuds:
         #     print("Nom : ", self.graphe.noeuds[noeud].nom)
